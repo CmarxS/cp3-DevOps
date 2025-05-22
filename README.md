@@ -1,7 +1,6 @@
 # Projeto DimDimApp - API Flask + MySQL + Docker
 
 ## Equipe
-- Nome da equipe: [Seu Nome da Equipe]
 - Integrantes:
   - Caio Marques - RM555997
   - Caio Amarante - RM558640

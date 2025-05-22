@@ -17,9 +17,9 @@
 from flask import Flask, request, jsonify
 import mysql.connector
 import os
-
+ 
 app = Flask(__name__)
-
+ 
 def get_db_connection():
     conn = mysql.connector.connect(
         host=os.getenv('MYSQL_HOST', 'mysql-container'),
@@ -28,7 +28,7 @@ def get_db_connection():
         database=os.getenv('MYSQL_DATABASE', 'dimdimdb')
     )
     return conn
-
+ 
 @app.route('/items', methods=['GET'])
 def get_items():
     conn = get_db_connection()
@@ -38,14 +38,14 @@ def get_items():
     cursor.close()
     conn.close()
     return jsonify(items)
-
+ 
 @app.route('/items', methods=['POST'])
 def add_item():
     new_item = request.json
     name = new_item.get('name')
     if not name:
         return jsonify({"error": "O campo 'name' é obrigatório"}), 400
-
+ 
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO items (name) VALUES (%s)", (name,))
@@ -53,7 +53,42 @@ def add_item():
     cursor.close()
     conn.close()
     return jsonify({'message': 'Item adicionado com sucesso'}), 201
-
+ 
+@app.route('/items/<int:item_id>', methods=['PUT'])
+def update_item(item_id):
+    data = request.json
+    name = data.get('name')
+    if not name:
+        return jsonify({"error": "O campo 'name' é obrigatório para atualização"}), 400
+ 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE items SET name = %s WHERE id = %s", (name, item_id))
+    conn.commit()
+    updated_rows = cursor.rowcount
+    cursor.close()
+    conn.close()
+ 
+    if updated_rows == 0:
+        return jsonify({'error': 'Item não encontrado'}), 404
+ 
+    return jsonify({'message': 'Item atualizado com sucesso'})
+ 
+@app.route('/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM items WHERE id = %s", (item_id,))
+    conn.commit()
+    deleted_rows = cursor.rowcount
+    cursor.close()
+    conn.close()
+ 
+    if deleted_rows == 0:
+        return jsonify({'error': 'Item não encontrado'}), 404
+ 
+    return jsonify({'message': 'Item deletado com sucesso'})
+ 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
 ```
@@ -182,7 +217,14 @@ docker run -d \
     "name": "Nome do Item"
   }
   ```
-
+  - DELETE `http://[IP_DA_VM]:5000/items/{id}` — para deletar um item
+  - PUT `http://[IP_DA_VM]:5000/items/{id}` — para alterar um item  
+  JSON do body:  
+  ```json
+  {
+    "name": "Nome do Item"
+  }
+  ```
 ---
 
 ## Comandos para verificar os containers

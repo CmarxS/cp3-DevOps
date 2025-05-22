@@ -3,9 +3,9 @@
 ## Equipe
 - Nome da equipe: [Seu Nome da Equipe]
 - Integrantes:
-  - Nome 1 - RM1
-  - Nome 2 - RM2
-  - Nome 3 - RM3
+  - Caio Marques - RM555997
+  - Caio Amarante - RM558640
+  - Felipe Camargo - RM556325
 
 ## Tecnologias
 - Python 3.11 + Flask
